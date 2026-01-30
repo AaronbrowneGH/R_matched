@@ -77,10 +77,33 @@ plot(daily_pnl$Date_UK, daily_pnl$cum_pnl, type='l', main = "Cumulative P&L", xl
 abline(h=0, lty=2) # 0 line
 plot(daily_pnl$Date_UK, daily_pnl$cum_pnl, main = "Cumulative P&L", xlab = "Date", ylab = "Cumulative AB Profit")
 
+# Logistic regression between edge probability and outcome(win01)
+# Obviously what I should observe is as edge prob increases so does predicted probability 
 
+# General linear model for logistic regression between edge and outcome(win01)
+LogReg_Edge_vs_Outcome <- glm(d$win01 ~ d$edge_prob, data=d, family = binomial)
 
+#Creating a predicted probabilities  
+d$pred_prob <- predict(LogReg_Edge_vs_Outcome, newdata = d, type = "response")
 
+# Creating a smooth grid in order to map edge probability.
+smooth_grid_x <- seq(min(d$edge_prob, na.rm = TRUE),
+                                            max(d$edge_prob, na.rm = TRUE),
+                                            length.out = 362)
 
+#
+grid <- data.frame(edge_prob = smooth_grid_x)
+
+# smooth curve probabilities (force numeric)
+predicted_grid_E_O <- as.numeric(predict(LogReg_Edge_vs_Outcome, newdata = grid, type = "response"))
+
+#Plot the points with y-axis as Predicted and x-axis as edge probabilities 
+plot(d$edge_prob, d$pred_prob,
+            type = "p",   # Plots points 
+            pch = 16, cex = 0.6,
+            xlab = "edge_prob",
+            ylab = "Predicted P(outcome = 1)",
+            ylim = c(0,1)) # Limits y-axis to 0-1 (Probabilities).
 
 
 
